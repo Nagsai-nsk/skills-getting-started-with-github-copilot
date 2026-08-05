@@ -74,23 +74,64 @@ section h3 {
   margin-bottom: 8px;
 }
 
-.form-group {
-  margin-bottom: 15px;
+/* Participants list styles */
+.participants-panel {
+  background-color: #eef4ff;
+  border: 1px solid #d7e6ff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+.participants-title {
+  color: #1a237e;
+  margin: 0 0 8px 0;
+  font-size: 18px;
 }
 
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.participants-bulleted {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+  list-style-position: outside;
+}
+
+.participants-bulleted li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
   font-size: 16px;
+  color: #222;
+}
+
+.participants-bulleted li::marker {
+  color: #1a237e;
+  font-size: 16px;
+}
+
+.participants-none {
+  margin: 0;
+  color: #666;
+  font-style: italic;
+}
+.participant-name {
+  margin-right: 8px;
+}
+
+.participant-remove {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.participant-remove:hover {
+  background: rgba(198,40,40,0.08);
 }
 
 button {
