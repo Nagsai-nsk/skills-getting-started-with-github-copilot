@@ -20,11 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Build participants HTML in a panel with bulleted list
+        let participantsHtml = "";
+        if (details.participants && details.participants.length) {
+          participantsHtml = `
+            <div class="participants-panel">
+              <h5 class="participants-title">Participants:</h5>
+              <ul class="participants-bulleted">
+                ${details.participants.map(p => `<li><span class="participant-name">${p}</span><button class="participant-remove" data-activity="${name}" data-email="${p}" aria-label="Remove ${p}">&times;</button></li>`).join("")}
+              </ul>
+            </div>
+          `;
+        } else {
+          participantsHtml = `
+            <div class="participants-panel">
+              <h5 class="participants-title">Participants:</h5>
+              <p class="participants-none"><em>None yet</em></p>
+            </div>
+          `;
+        }
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          ${participantsHtml}
         `;
 
         activitiesList.appendChild(activityCard);
@@ -34,6 +55,51 @@ document.addEventListener("DOMContentLoaded", () => {
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
+      });
+
+      // Attach delegated click handler for remove buttons
+      activitiesList.addEventListener("click", async (event) => {
+        const btn = event.target.closest && event.target.closest('.participant-remove');
+        if (!btn) return;
+
+        const email = btn.dataset.email;
+        const activity = btn.dataset.activity;
+
+        if (!email || !activity) return;
+
+        // Optimistic UI: disable the button
+        btn.disabled = true;
+
+        try {
+          const resp = await fetch(`/activities/${encodeURIComponent(activity)}/participants?email=${encodeURIComponent(email)}`, {
+            method: 'DELETE',
+          });
+
+          const data = await resp.json().catch(() => ({}));
+
+          if (resp.ok) {
+            // remove the participant element
+            const li = btn.closest('li');
+            if (li) li.remove();
+            // show message
+            messageDiv.textContent = data.message || `Removed ${email}`;
+            messageDiv.className = 'success';
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => messageDiv.classList.add('hidden'), 3000);
+          } else {
+            btn.disabled = false;
+            messageDiv.textContent = data.detail || 'Failed to remove participant';
+            messageDiv.className = 'error';
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+          }
+        } catch (err) {
+          btn.disabled = false;
+          messageDiv.textContent = 'Network error while removing participant';
+          messageDiv.className = 'error';
+          messageDiv.classList.remove('hidden');
+          console.error('Error removing participant:', err);
+        }
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
